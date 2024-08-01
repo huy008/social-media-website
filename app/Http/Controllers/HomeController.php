@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Post;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Http\Resources\PostResource;
 
 class HomeController extends Controller
 {
     public function index(Request $request){
-        return Inertia::render('Home');
+        $posts = Post::query()->paginate(20);
+        return Inertia::render('Home',['posts' => PostResource::collection($posts)]);
     }
 }
