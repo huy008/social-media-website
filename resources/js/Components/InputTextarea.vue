@@ -34,6 +34,7 @@ defineExpose({focus: () => input.value.focus()});
 
 function onInputChange($event) {
     emit('update:modelValue', $event.target.value)
+    adjustHeight()
 }
 
 function adjustHeight() {
