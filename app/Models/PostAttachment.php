@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PostAttachment extends Model
@@ -24,5 +25,12 @@ class PostAttachment extends Model
      {
           return $this->belongsToMany(Post::class);
      }
+     protected static function boot()
+     {
+          parent::boot();
 
+          static::deleted(function (self $model) {
+               Storage::disk('public')->delete($model->path);
+          });
+     }
 }
