@@ -2,7 +2,8 @@
 import PostItem from "@/Components/app/PostItem.vue";
 import PostModal from "@/Components/app/PostModal.vue";
 import { ref } from "vue";
-import {usePage} from "@inertiajs/vue3";
+import { usePage } from "@inertiajs/vue3";
+
 defineProps({
     posts: Array,
 });

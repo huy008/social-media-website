@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Http\Request;
 use App\Models\PostAttachment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -120,5 +119,10 @@ class PostController extends Controller
           $post->delete();
 
           return back();
+     }
+
+     public function downloadAttachment(PostAttachment $attachment)
+     {
+          return response()->download(Storage::disk('public')->path($attachment->path), $attachment->name);
      }
 }

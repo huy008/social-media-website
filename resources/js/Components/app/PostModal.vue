@@ -210,7 +210,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    modelValue: Boolean,
+    modelValue: {
+        type: Boolean,
+        required: true,
+    },
 });
 const form = useForm({
     body: "",
@@ -224,13 +227,14 @@ const show = computed({
     get: () => props.modelValue,
     set: (value) => emit("update:modelValue", value),
 });
+
 const computedAttachments = computed(() => {
     return [...attachmentFiles.value, ...(props.post.attachments || [])];
 });
+
 watch(
     () => props.post,
     () => {
-        form.id = props.post.id;
         form.body = props.post.body || "";
     }
 );
@@ -245,7 +249,8 @@ function resetModal() {
     props.post.attachments.forEach((file) => (file.deleted = false));
 }
 function submit() {
-    if (form.id) {
+    form.attachments = attachmentFiles.value.map((myFile) => myFile.file);
+    if (props.post.id) {
         form._method = "PUT";
         form.post(route("post.update", props.post.id), {
             preserveScroll: true,
