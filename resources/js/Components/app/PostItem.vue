@@ -14,21 +14,27 @@ import {
     HandThumbUpIcon,
     ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
+import { PaperClipIcon } from "@heroicons/vue/24/solid/index.js";
 
 const props = defineProps({
     post: Object,
 });
-const emit = defineEmits(["editClick"]);
+const emit = defineEmits(["editClick", "attachmentClick"]);
 
 function openEditModal() {
     emit("editClick", props.post);
 }
+
 function deletePost() {
     if (window.confirm("Are you sure you want to delete this post?")) {
         router.delete(route("post.destroy", props.post), {
             preserveScroll: true,
         });
     }
+}
+
+function openAttachment(ind) {
+    emit("attachmentClick", props.post, ind);
 }
 </script>
 
@@ -126,7 +132,8 @@ function deletePost() {
         >
             <template v-for="(attachment, ind) of post.attachments.slice(0, 4)">
                 <div
-                    class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative"
+                    @click="openAttachment(ind)"
+                    class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative cursor-pointer"
                 >
                     <div
                         v-if="ind === 3 && post.attachments.length > 4"
@@ -148,23 +155,14 @@ function deletePost() {
                         :src="attachment.url"
                         class="object-contain aspect-square"
                     />
-                    <template v-else>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            class="w-12 h-12"
-                        >
-                            <path
-                                d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z"
-                            />
-                            <path
-                                d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z"
-                            />
-                        </svg>
+                    <div
+                        v-else
+                        class="flex flex-col justify-center items-center"
+                    >
+                        <PaperClipIcon class="w-10 h-10 mb-3" />
 
                         <small>{{ attachment.name }}</small>
-                    </template>
+                    </div>
                 </div>
             </template>
         </div>
