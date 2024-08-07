@@ -15,6 +15,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\CommentResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Requests\UpdateCommentRequest;
 
 class PostController extends Controller
 {
@@ -172,5 +173,27 @@ class PostController extends Controller
           ]);
 
           return response(new CommentResource($comment), 201);
+     }
+
+
+     public function deleteComment(Comment $comment)
+     {
+          if ($comment->user_id !== Auth::id()) {
+               return response("You don't have permission to delete this comment.", 403);
+          }
+
+          $comment->delete();
+          return response('', 204);
+     }
+
+     public function updateComment(UpdateCommentRequest $request, Comment $comment)
+     {
+          $data = $request->validated();
+
+          $comment->update([
+               'comment' => nl2br($data['comment'])
+          ]);
+
+          return new CommentResource($comment);
      }
 }
