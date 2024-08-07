@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Enums\PostReactionEnum;
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
-use App\Models\PostAttachment;
+use App\Models\Comment;
 use App\Models\PostReaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Models\PostAttachment;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use App\Http\Enums\PostReactionEnum;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\CommentResource;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdatePostRequest;
 
 class PostController extends Controller
 {
@@ -132,21 +134,20 @@ class PostController extends Controller
 
      public function postReaction(Request $request, Post $post)
      {
-          $data = $request->validate([
-               'reaction' => [Rule::enum(PostReactionEnum::class)]
-          ]);
+          // $data = $request->validate([
+          //      'reaction' => [Rule::enum(PostReactionEnum::class)]
+          // ]);
           $userId = Auth::id();
           $reaction = PostReaction::where('user_id', $userId)->where('post_id', $post->id)->first();
           if ($reaction) {
                $hasReaction = false;
                $reaction->delete();
           } else {
-               echo 123;exit();
                $hasReaction = true;
                PostReaction::create([
                     'post_id' => $post->id,
                     'user_id' => $userId,
-                    'type' => $data['reaction']
+                    'type' => $request->input('reaction'),
                ]);
           }
 
@@ -156,5 +157,20 @@ class PostController extends Controller
                'num_of_reactions' => $reactions,
                'current_user_has_reaction' => $hasReaction
           ]);
+     }
+
+     public function createComment(Request $request, Post $post)
+     {
+          $data = $request->validate([
+               'comment' => ['required']
+          ]);
+
+          $comment = Comment::create([
+               'post_id' => $post->id,
+               'comment' => nl2br($data['comment']),
+               'user_id' => Auth::id()
+          ]);
+
+          return response(new CommentResource($comment), 201);
      }
 }

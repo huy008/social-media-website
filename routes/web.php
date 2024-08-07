@@ -39,7 +39,10 @@ Route::middleware('auth')->group(function () {
         ->name('post.download');
 
     Route::post('/post/{post}/reaction', [PostController::class, 'postReaction'])
-    ->name('post.reaction');
+        ->name('post.reaction');
+
+    Route::post('/post/{post}/comment', [PostController::class, 'createComment'])
+        ->name('post.comment.create');
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
