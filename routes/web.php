@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -52,6 +53,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/comment/{comment}/reaction', [PostController::class, 'commentReaction'])
         ->name('comment.reaction');
+
+    Route::post('/group', [GroupController::class, 'store'])
+        ->name('group.create');
 });
 
 require __DIR__ . '/auth.php';
