@@ -26,7 +26,7 @@ const show = computed({
     get: () => props.modelValue,
     set: (value) => emit("update:modelValue", value),
 });
-const emit = defineEmits(["update:modelValue", "hide"]);
+const emit = defineEmits(["update:modelValue", "hide", "create"]);
 function closeModal() {
     show.value = false;
     emit("hide");
@@ -37,9 +37,9 @@ function resetModal() {
     formErrors.value = {};
 }
 function submit() {
-    axiosClient.post(route("group.create"), form).then((res) => {
-        console.log(res);
+    axiosClient.post(route("group.create"), form).then(({ data }) => {
         closeModal();
+        emit("create", data);
     });
 }
 </script>

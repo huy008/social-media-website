@@ -10,6 +10,7 @@ use App\Http\Enums\GroupUserStatus;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\GroupResource;
 use App\Http\Requests\StoreGroupRequest;
+use GroupUser as GlobalGroupUser;
 
 class GroupController extends Controller
 {
@@ -47,7 +48,8 @@ class GroupController extends Controller
         ];
 
         GroupUser::create($groupUserData);
-
+        $group->status = $groupUserData['status'];
+        $group->role = $groupUserData['role'];
         return response(new GroupResource($group), 201);
     }
 

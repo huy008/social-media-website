@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class ProfileController extends Controller
+class ProfileController extends Controller 
 {
     public function index(User $user)
     {
         return Inertia::render('Profile/View', [
-            // 'mustVerifyEmail' => $user instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'success' => session('success'),
             'status' => session('status'),
             'user' => new UserResource($user)
