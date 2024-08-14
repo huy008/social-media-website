@@ -1,8 +1,6 @@
 <?php
 
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\GroupController;
@@ -25,11 +23,13 @@ Route::get('/u/{user:username}', [ProfileController::class, 'index'])
     ->name('profile');
 Route::get('/g/{group:slug}', [GroupController::class, 'profile'])
     ->name('group.profile');
-
+Route::get('/group/approve-invitation/{token}', [GroupController::class, 'approveInvitation'])
+    ->name('group.approveInvitation');
 Route::middleware('auth')->group(function () {
     Route::post('/profile/update-images', [ProfileController::class, 'updateImage'])
         ->name('profile.updateImages');
-
+    Route::post('/group/invite/{group:slug}', [GroupController::class, 'inviteUsers'])
+        ->name('group.inviteUsers');
     Route::post('/post', [PostController::class, 'store'])
         ->name('post.create');
     Route::put('/post/{post}', [PostController::class, 'update'])
