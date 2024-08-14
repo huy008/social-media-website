@@ -13,8 +13,6 @@ import { useForm } from "@inertiajs/vue3";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import InviteUserModal from "@/Pages/Group/InviteUserModal.vue";
 
-
-
 const imagesForm = useForm({
     thumbnail: null,
     cover: null,
@@ -83,6 +81,11 @@ function submitThurmbnailImage() {
             }, 3000);
         },
     });
+}
+
+function joinToGroup() {
+    const form = useForm({});
+    form.post(route("group.join", props.group.slug));
 }
 </script>
 
@@ -209,18 +212,32 @@ function submitThurmbnailImage() {
                     <div class="flex justify-between items-center flex-1 p-4">
                         <h2 class="font-bold text-lg">{{ group.name }}</h2>
 
+                        <PrimaryButton v-if="!authUser" :href="route('login')">
+                            Login to join to this group
+                        </PrimaryButton>
+
                         <PrimaryButton
-                            @click="showInviteUserModal = true"
                             v-if="isCurrentUserAdmin"
-                            >Invite Users</PrimaryButton
+                            @click="showInviteUserModal = true"
                         >
-                        <PrimaryButton v-if="!group.role && group.auto_approval"
-                            >Join to Group</PrimaryButton
-                        >
+                            Invite Users
+                        </PrimaryButton>
                         <PrimaryButton
-                            v-if="!group.role && !group.auto_approval"
-                            >Request to join</PrimaryButton
+                            v-if="
+                                authUser && !group.role && group.auto_approval
+                            "
+                            @click="joinToGroup"
                         >
+                            Join to Group
+                        </PrimaryButton>
+                        <PrimaryButton
+                            v-if="
+                                authUser && !group.role && !group.auto_approval
+                            "
+                            @click="joinToGroup"
+                        >
+                            Request to join
+                        </PrimaryButton>
                     </div>
                 </div>
             </div>
