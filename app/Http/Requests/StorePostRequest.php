@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\GroupUser;
+use App\Http\Enums\GroupUserStatus;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StorePostRequest extends FormRequest
 {
@@ -28,22 +31,42 @@ class StorePostRequest extends FormRequest
                'attachments.*' => [
                     'file',
                     File::types([
-                         'jpg', 'jpeg', 'png', 'gif', 'webp',
-                         'mp3', 'wav', 'mp4',
-                         "doc", "docx", "pdf", "csv", "xls", "xlsx",
+                         'jpg',
+                         'jpeg',
+                         'png',
+                         'gif',
+                         'webp',
+                         'mp3',
+                         'wav',
+                         'mp4',
+                         "doc",
+                         "docx",
+                         "pdf",
+                         "csv",
+                         "xls",
+                         "xlsx",
                          "zip"
                     ])->max(500 * 1024 * 1024)
                ],
-               'user_id' => ['numeric']
+               'user_id' => ['numeric'],
+               'group_id' => ['nullable', 'exists:groups,id', function ($attribute, $value, \Closure $fail) {
+                    $groupUser = GroupUser::where('user_id', Auth::id())
+                         ->where('group_id', $value)
+                         ->where('status', GroupUserStatus::APPROVED->value)
+                         ->exists();
+
+                    if (!$groupUser) {
+                         $fail('You don\'t have permission to create post in this group');
+                    }
+               }]
           ];
      }
 
      protected function prepareForValidation()
      {
-          // Add your custom key to the request data
           $this->merge([
                'user_id' => auth()->user()->id,
-               
+
                'body' => $this->input('body') ?: ''
           ]);
      }

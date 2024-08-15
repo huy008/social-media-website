@@ -50,6 +50,12 @@
                                         :show-time="false"
                                         class="mb-4"
                                     />
+                                    <div
+                                        v-if="formErrors.group_id"
+                                        class="bg-red-400 py-2 px-3 rounded text-white mb-3"
+                                    >
+                                        {{ formErrors.group_id }}
+                                    </div>
                                     <ckeditor
                                         :editor="editor"
                                         v-model="form.body"
@@ -135,7 +141,6 @@
                                     <button
                                         type="button"
                                         class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full relative"
-                                        
                                     >
                                         <PaperClipIcon class="w-4 h-4 mr-2" />
                                         Attach Files
@@ -210,6 +215,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    group: {
+        type: Object,
+        default: null,
+    },
     modelValue: {
         type: Boolean,
         required: true,
@@ -218,6 +227,7 @@ const props = defineProps({
 const form = useForm({
     body: "",
     attachments: [],
+    group_id: null,
     deleted_file_ids: [],
     _method: "POST",
 });
@@ -249,6 +259,9 @@ function resetModal() {
     props.post.attachments.forEach((file) => (file.deleted = false));
 }
 function submit() {
+    if (props.group) {
+        form.group_id = props.group.id;
+    }
     form.attachments = attachmentFiles.value.map((myFile) => myFile.file);
     if (props.post.id) {
         form._method = "PUT";
