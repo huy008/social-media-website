@@ -29,6 +29,7 @@ Route::get('/group/approve-invitation/{token}', [GroupController::class, 'approv
     ->name('group.approveInvitation');
 
 
+
 Route::middleware('auth')->group(function () {
     Route::post('/profile/update-images', [ProfileController::class, 'updateImage'])
         ->name('profile.updateImages');
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/approve-request/{group:slug}', [GroupController::class, 'approveRequest'])
         ->name('group.approveRequest');
+
+    Route::post('/group/change-role/{group:slug}', [GroupController::class, 'changeRole'])
+        ->name('group.changeRole');
 
     Route::post('/post', [PostController::class, 'store'])
         ->name('post.create');
