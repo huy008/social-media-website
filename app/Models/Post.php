@@ -51,16 +51,20 @@ class Post extends Model
 
     public static function postsForTimeline($userId): Builder
     {
-        return Post::query() 
-            ->withCount('reactions') 
+        return Post::query()
+            ->withCount('reactions')
             ->with([
                 'comments' => function ($query) {
                     $query->withCount('reactions');
                 },
                 'reactions' => function ($query) use ($userId) {
-                    $query->where('user_id', $userId); 
+                    $query->where('user_id', $userId);
                 }
             ])
             ->latest();
+    }
+    public function isOwner($userId)
+    {
+        return $this->user_id == $userId;
     }
 }

@@ -122,7 +122,7 @@ function rejectUser(user) {
     form.post(route("group.approveRequest", props.group.slug));
 }
 
-unction onRoleChange(user, role) {
+function onRoleChange(user, role) {
     console.log(user, role)
     const form = useForm({
         user_id: user.id,

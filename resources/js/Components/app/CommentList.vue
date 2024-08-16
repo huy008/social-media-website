@@ -7,7 +7,7 @@ import ReadMoreReadLess from "@/Components/app/ReadMoreReadLess.vue";
 import IndigoButton from "@/Components/app/IndigoButton.vue";
 import InputTextarea from "@/Components/InputTextarea.vue";
 import EditDeleteDropdown from "@/Components/app/EditDeleteDropdown.vue";
-import { usePage,Link } from "@inertiajs/vue3";
+import { usePage, Link } from "@inertiajs/vue3";
 import { ref } from "vue";
 import axiosClient from "@/axiosClient.js";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
@@ -154,6 +154,8 @@ function onCommentDelete(comment) {
                 </div>
                 <EditDeleteDropdown
                     :user="comment.user"
+                    :post="post"
+                    :comment="comment"
                     @edit="startCommentEdit(comment)"
                     @delete="deleteComment(comment)"
                 />
