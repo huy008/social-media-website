@@ -26,6 +26,7 @@ use App\Http\Requests\InviteUsersRequest;
 use App\Http\Resources\GroupUserResource;
 use App\Notifications\InvitationApproved;
 use App\Notifications\RequestToJoinGroup;
+use App\Notifications\UserRemovedFromGroup;
 use Illuminate\Support\Facades\Notification;
 
 class GroupController extends Controller
@@ -202,7 +203,7 @@ class GroupController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        $user->notify(new InvitationInGroup($group, $hours, $token));
+        // $user->notify(new InvitationInGroup($group, $hours, $token));
 
 
         return back()->with('success', 'User was invited to join to group');
@@ -233,7 +234,7 @@ class GroupController extends Controller
 
         $adminUser = $groupUser->adminUser;
 
-        $adminUser->notify(new InvitationApproved($groupUser->group, $groupUser->user));
+        // $adminUser->notify(new InvitationApproved($groupUser->group, $groupUser->user));
 
         return redirect(route('group.profile', $groupUser->group))
             ->with('success', 'You accepted to join to group "' . $groupUser->group->name . '"');
@@ -290,7 +291,7 @@ class GroupController extends Controller
             $groupUser->save();
 
             $user = $groupUser->user;
-            $user->notify(new RequestApproved($groupUser->group, $user, $approved));
+            // $user->notify(new RequestApproved($groupUser->group, $user, $approved));
 
             return back()->with('success', 'User "' . $user->name . '" was ' . ($approved ? 'approved' : 'rejected'));
         }
@@ -322,9 +323,38 @@ class GroupController extends Controller
             $groupUser->role = $data['role'];
             $groupUser->save();
 
-            $groupUser->user->notify(new RoleChanged($group, $data['role']));
+            // $groupUser->user->notify(new RoleChanged($group, $data['role']));
 
-            return back();
         }
+        return back();
+    }
+
+    public function removeUser(Request $request, Group $group)
+    {
+        if (!$group->isAdmin(Auth::id())) {
+            return response("You don't have permission to perform this action", 403);
+        }
+
+        $data = $request->validate([
+            'user_id' => ['required'],
+        ]);
+
+        $user_id = $data['user_id'];
+        if ($group->isOwner($user_id)) {
+            return response("The owner of the group cannot be removed", 403);
+        }
+
+        $groupUser = GroupUser::where('user_id', $user_id)
+            ->where('group_id', $group->id)
+            ->first();
+
+        if ($groupUser) {
+            $user = $groupUser->user;
+            $groupUser->delete();
+
+            // $user->notify(new UserRemovedFromGroup($group));
+        }
+
+        return back();
     }
 }

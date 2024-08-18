@@ -48,8 +48,8 @@ const props = defineProps({
 const aboutForm = useForm({
     name: usePage().props.group.name,
     auto_approval: !!parseInt(usePage().props.group.auto_approval),
-    about: usePage().props.group.about
-})
+    about: usePage().props.group.about,
+});
 
 function onCoverChange(event) {
     imagesForm.cover = event.target.files[0];
@@ -123,19 +123,35 @@ function rejectUser(user) {
 }
 
 function onRoleChange(user, role) {
-    console.log(user, role)
+    console.log(user, role);
     const form = useForm({
         user_id: user.id,
-        role
-    })
-    form.post(route('group.changeRole', props.group.slug), {
-        preserveScroll: true
-    })
+        role,
+    });
+    form.post(route("group.changeRole", props.group.slug), {
+        preserveScroll: true,
+    });
 }
-function updateGroup(){
-    aboutForm.put(route('group.update', props.group.slug), {
-        preserveScroll: true
-    })
+function updateGroup() {
+    aboutForm.put(route("group.update", props.group.slug), {
+        preserveScroll: true,
+    });
+}
+function deleteUser(user) {
+    console.log("111");
+    if (
+        !window.confirm(
+            `Are you sure you want to remove user "${user.name}" from this group?`
+        )
+    ) {
+        return false;
+    }
+    const form = useForm({
+        user_id: user.id,
+    });
+    form.delete(route("group.removeUser", props.group.slug), {
+        preserveScroll: true,
+    });
 }
 </script>
 
@@ -309,7 +325,12 @@ function updateGroup(){
             </div>
             <div class="border-t p-4 pt-0">
                 <TabGroup>
-                    <TabList class="flex bg-white">
+                    <TabList
+                        class="flex bg-white dark:bg-slate-950 dark:text-white"
+                    >
+                        <Tab v-slot="{ selected }" as="template">
+                            <TabItem text="Posts" :selected="selected" />
+                        </Tab>
                         <Tab
                             v-if="isJoinedToGroup"
                             v-slot="{ selected }"
@@ -328,16 +349,9 @@ function updateGroup(){
                             />
                         </Tab>
                         <Tab v-slot="{ selected }" as="template">
-                            <TabItem text="Followings" :selected="selected" />
-                        </Tab>
-                        <Tab v-slot="{ selected }" as="template">
                             <TabItem text="Photos" :selected="selected" />
                         </Tab>
-                        <Tab
-                            v-if="isCurrentUserAdmin"
-                            v-slot="{ selected }"
-                            as="template"
-                        >
+                        <Tab v-slot="{ selected }" as="template">
                             <TabItem text="About" :selected="selected" />
                         </Tab>
                     </TabList>
@@ -346,9 +360,23 @@ function updateGroup(){
                         <TabPanel>
                             <template v-if="posts">
                                 <CreatePost :group="group" />
-                                <PostList :posts="posts.data" class="flex-1" />
+                                <PostList
+                                    v-if="posts.data.length"
+                                    :posts="posts.data"
+                                    class="flex-1"
+                                />
+                                <div
+                                    v-else
+                                    class="py-8 text-center dark:text-gray-100"
+                                >
+                                    There are no posts in this group. Be the
+                                    first and create it.
+                                </div>
                             </template>
-                            <div v-else class="py-8 text-center">
+                            <div
+                                v-else
+                                class="py-8 text-center dark:text-gray-100"
+                            >
                                 You don't have permission to view these posts.
                             </div>
                         </TabPanel>
@@ -371,6 +399,7 @@ function updateGroup(){
                                     "
                                     class="shadow rounded-lg"
                                     @role-change="onRoleChange"
+                                    @delete="deleteUser"
                                 />
                             </div>
                         </TabPanel>
@@ -389,18 +418,25 @@ function updateGroup(){
                                     @reject="rejectUser"
                                 />
                             </div>
-                            <div class="py-8 text-center">
+                            <div class="py-8 text-center dark:text-gray-100">
                                 There are no pending requests.
                             </div>
                         </TabPanel>
-                        <TabPanel class="bg-white p-3 shadow">
-                            Photos
+                        <TabPanel>
+                            <TabPhotos :photos="photos" />
                         </TabPanel>
-                        <TabPanel class="bg-white p-3 shadow">
-                            <GroupForm :form="aboutForm" />
-                            <PrimaryButton @click="updateGroup">
-                                Submit
-                            </PrimaryButton>
+                        <TabPanel>
+                            <template v-if="isCurrentUserAdmin">
+                                <GroupForm :form="aboutForm" />
+                                <PrimaryButton @click="updateGroup">
+                                    Submit
+                                </PrimaryButton>
+                            </template>
+                            <div
+                                v-else
+                                class="ck-content-output dark:text-gray-100"
+                                v-html="group.about"
+                            ></div>
                         </TabPanel>
                     </TabPanels>
                 </TabGroup>
