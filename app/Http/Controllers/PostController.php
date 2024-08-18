@@ -7,19 +7,32 @@ use App\Models\Comment;
 use App\Models\Reaction;
 use Illuminate\Http\Request;
 use App\Models\PostAttachment;
+use App\Notifications\PostDeleted;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\PostResource;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\CommentDeleted;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\CommentResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Requests\UpdateCommentRequest;
-use App\Notifications\CommentDeleted;
-use App\Notifications\PostDeleted;
 
 class PostController extends Controller
 {
+     public function view(Post $post)
+     {
+          $post->loadCount('reactions');
+          $post->load([
+               'comments' => function ($query) {
+                    $query->withCount('reactions');
+               },
+          ]);
 
+          return inertia('Post/View', [
+               'post' => new PostResource($post)
+          ]);
+     }
      /**
       * Store a newly created resource in storage.
       */
@@ -74,7 +87,7 @@ class PostController extends Controller
                $data = $request->validated();
                $post->update($data);
 
-               $deleted_ids = $data['deleted_file_ids'] ?? []; // 1, 2, 3, 4
+               $deleted_ids = $data['deleted_file_ids'] ?? [];
 
                $attachments = PostAttachment::query()
                     ->where('post_id', $post->id)
@@ -121,11 +134,6 @@ class PostController extends Controller
 
           if ($post->isOwner($id) || $post->group && $post->group->isAdmin($id)) {
                $post->delete();
-
-               if (!$post->isOwner($id)) {
-                    $post->user->notify(new PostDeleted($post->group));
-               }
-
                return back();
           }
 
@@ -195,11 +203,6 @@ class PostController extends Controller
           $id = Auth::id();
           if ($comment->isOwner($id) || $post->isOwner($id)) {
                $comment->delete();
-
-               if (!$comment->isOwner($id)) {
-                    $comment->user->notify(new CommentDeleted($comment, $post));
-               }
-
                return response('', 204);
           }
 
