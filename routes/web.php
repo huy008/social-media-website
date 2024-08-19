@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 
@@ -84,6 +85,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/update-images/{group:slug}', [GroupController::class, 'updateImage'])
         ->name('group.updateImages');
+
+    Route::post('/user/follow/{user}', [UserController::class, 'follow'])->name('user.follow');
 });
 
 require __DIR__ . '/auth.php';
