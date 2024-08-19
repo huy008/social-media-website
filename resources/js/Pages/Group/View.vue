@@ -365,6 +365,10 @@ function deleteUser(user) {
                                     :posts="posts.data"
                                     class="flex-1"
                                 />
+                                <div v-else class="py-8 text-center">
+                                    There are no posts in this group. Be the
+                                    first and create it.
+                                </div>
                                 <div
                                     v-else
                                     class="py-8 text-center dark:text-gray-100"
